@@ -1,7 +1,6 @@
 
 #include "Window.h"
 #include "pathtools.h"
-#include "Cloud.cpp"
 
 int Window::width;
 int Window::height;
@@ -159,32 +158,6 @@ bool Window::initializeProgram() {
 
 bool Window::initializeObjects()
 {
-	/*
-	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	GLuint FramebufferName = 0;
-	glGenFramebuffers(1, &FramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
-	GLuint depthTexture;
-	glGenTextures(1, &depthTexture);
-	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
-
-	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
-
-	glm::vec3 lightInvDir = glm::vec3(0.0, -100.0, 100.0);
-	glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
-	glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 depthModelMatrix = glm::mat4(1.0);
-	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-	*/
 	std::string path = Path_StripFilename(Path_GetExecutablePath());
 	Material mat{ glm::vec3(0.80,0.36,0.0) ,glm::vec3(0.3,0.3,0.3) ,glm::vec3(0.5,0.5,0.5) ,glm::vec3(0.1,0.1,0.1) ,0.25};
 	g_base1 = new Geometry(path + "\\objs\\base1.obj", 1, mat);
