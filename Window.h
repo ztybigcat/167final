@@ -47,10 +47,12 @@ public:
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up, direction, right;
 	static glm::vec3 fc, ftl, ftr, fbl, fbr, nc, ntl, ntr, nbl, nbr, normF, normN, normU, normB, normR, normL;
+
 	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc, lightPosLoc, lightColorLoc, materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc, flagLoc;
-	static Transform* root, * base1, * terrian, * park;
-	static Geometry* g_base1, * g_mid1, * g_mid2, * g_mid3, * g_top1, *g_terrian, * g_road, * g_park;
-	static std::vector<Transform*> blocks, roads;
+	static Transform* root, * base1, * terrian, * park, * win, *allTokens;
+	static Geometry* g_base1, * g_mid1, * g_mid2, * g_mid3, * g_top1, *g_terrian, * g_road, * g_park, * g_gold, * g_bomb, * g_win;
+	static std::vector<Transform*> blocks, roads, tokens;
+
 	//static Binding * binder;
 	static Skybox * skybox;
 	static bool initializeProgram();
@@ -67,6 +69,7 @@ public:
     static void mouseButtonCheck(GLFWwindow* window, double xpos, double ypos);
     static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 	static void frustumCalc();
+	static void shuffle(int* arr, size_t n);
 };
 
 #endif
