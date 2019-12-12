@@ -131,5 +131,13 @@
     <None Include="shaders\skybox.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
+    <None Include="shaders\sm.frag">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\sm.vert">
+      <Filter>Source Files\Shader</Filter>
+    </Text>
   </ItemGroup>
 </Project>

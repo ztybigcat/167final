@@ -48,9 +48,6 @@ void Transform::rotation(glm::mat4 C){
 }
 void Transform::detectCollision(glm::vec3 eye, glm::mat4 C) {
 	glm::mat4 M_new = C * M;
-	if (eye.y <= 0) {
-		Window::gameOver();
-	}
 	for (Node* child : childs) {
 		child->detectCollision(eye, M_new);
 	}

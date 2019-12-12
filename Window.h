@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <irrKlang.h>
 
 #include "Object.h"
 #include "Cube.h"
@@ -32,6 +33,7 @@
 #include "Cell.h"
 #include "Skybox.hpp"
 #include "Token.h"
+using namespace irrklang;
 class Window
 {
 public:
@@ -59,8 +61,8 @@ public:
 	static std::vector<Token*> tokens;
 
 	static int score;
-	static bool over;
-
+	static bool over, autoOn;
+	static ISoundEngine* SoundEngine;
 	//static Binding * binder;
 	static Skybox * skybox;
 	static bool initializeProgram();

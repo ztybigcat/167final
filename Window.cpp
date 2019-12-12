@@ -1,8 +1,12 @@
+
 #include "Window.h"
 #include "pathtools.h"
+#include "Cloud.cpp"
+
 int Window::width;
 int Window::height;
 bool Window::normalFlag = false;
+bool Window::autoOn = false;
 int Window::lightSwitch = 0;
 bool flag = false;
 bool Window::cFlag = false;
@@ -27,7 +31,7 @@ int Window::score = 0;
 bool Window::over = false;
 
 Skybox* Window::skybox;
-
+ISoundEngine* Window::SoundEngine;
 // Objects to display.
 //
 //Light * Window::lightObj;
@@ -89,7 +93,7 @@ glm::mat4 Window::projection; // Projection matrix.
 //glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
 //glm::vec3 Window::up(1.0f, 0.0f, 0.0f); // The up direction of the camera.
 
-glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f);
+glm::vec3 Window::eye(-0.5f, 18.0f, 0.0f);
 glm::vec3 Window::center(0.0f, 0.0f, 1.0f);
 glm::vec3 Window::up(0.0f, 1.0f, 0.0f);
 
@@ -155,25 +159,32 @@ bool Window::initializeProgram() {
 
 bool Window::initializeObjects()
 {
-	// Create a cube of size 5.
-//	cube = new Cube(5.0f);
-	// Create a point cloud consisting of cube vertices.
-//	cubePoints = new PointCloud("foo", 100);
-/*    bunnyPoints = new PointCloud("bunny.obj", 1);
-    
-    dragonPoints = new PointCloud("dragon.obj", 1);
-    
-    bearPoints = new PointCloud("bear.obj", 1);
-    
-    lightObj = new Light(glm::vec3(-10.0f,-0.1f,0.1f));
+	/*
+	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	GLuint FramebufferName = 0;
+	glGenFramebuffers(1, &FramebufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
-	// Set cube to be the first to display
-	currentObj = bunnyPoints;
-    materialAmbient = bunnyMaterialAmbient;
-    materialDiffuse = bunnyMaterialDiffuse;
-    materialSpecular = bunnyMaterialSpecular;*/
-	srand(time(0));
+	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
+	GLuint depthTexture;
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+
+	glm::vec3 lightInvDir = glm::vec3(0.0, -100.0, 100.0);
+	glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
+	glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 depthModelMatrix = glm::mat4(1.0);
+	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+	*/
 	std::string path = Path_StripFilename(Path_GetExecutablePath());
 	Material mat{ glm::vec3(0.80,0.36,0.0) ,glm::vec3(0.3,0.3,0.3) ,glm::vec3(0.5,0.5,0.5) ,glm::vec3(0.1,0.1,0.1) ,0.25};
 	g_base1 = new Geometry(path + "\\objs\\base1.obj", 1, mat);
@@ -290,6 +301,7 @@ bool Window::initializeObjects()
 				buildings[j]->addChild(top1);		
 			}
 		}
+		glfwSetTime(0.0);
 	}
 
 
@@ -307,7 +319,7 @@ bool Window::initializeObjects()
 	skybox->init();
 	skybox->updateProjection(projection);
 	skybox->updateView(view);
-
+	SoundEngine = createIrrKlangDevice();
 	return true;
 }
 
@@ -396,13 +408,33 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {   
-	
+	if (over) {
+		return;
+	}
+	if (autoOn && (Window::eye.y <= 0 || Window::eye.z <= -0.1 || Window::eye.z >= 296.1 || Window::eye.x <= -120.1 || Window::eye.x >= 176.1)) {
+		Window::gameOver();
+	}
 	Window::moving();
 	Window::blocks[int(Window::eye.z/30) * 10 + int((Window::eye.x+120)/30)]->detectCollision(Window::eye, glm::mat4(1.0f));
 	Window::allTokens->detectCollision(Window::eye, glm::mat4(1.0f));
 }
+bool already = false;
+
 void Window::displayCallback(GLFWwindow* window)
 {
+	if (over && !already) {
+		glfwSetWindowTitle(window, ("Silkman-- GameOver! Your Score is " + to_string(score)).c_str());
+		SoundEngine->stopAllSounds();
+		string path = Path_StripFilename(Path_GetExecutablePath()) + "\\death.wav";
+		SoundEngine->play2D(path.c_str());
+		glfwPollEvents();
+		already = true;
+		return;
+	}
+	else if(over && already){
+		glfwPollEvents();
+		return;
+	}
     // Clear the color and depth buffers.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program);
@@ -422,7 +454,7 @@ void Window::displayCallback(GLFWwindow* window)
 	skybox->updateProjection(projection);
 	skybox->updateView(view);
 	skybox->draw();   
-	//glfwSetWindowTitle(window, "Silkman-- Score: "+ score.toString());
+	glfwSetWindowTitle(window, ("Silkman-- Score: "+ to_string(score)).c_str());
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -449,6 +481,17 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{glUniform1f(flagLoc, !normalFlag);
 		Window::normalFlag = !Window::normalFlag;
 		break; }
+		case GLFW_KEY_B:
+			if (!autoOn) {
+				string path = Path_StripFilename(Path_GetExecutablePath()) + "\\bk.wav";
+				SoundEngine->play2D(path.c_str(), GL_TRUE);
+			}
+			else {
+				SoundEngine->stopAllSounds();
+			}
+			autoOn = !autoOn;
+			glfwSetTime(0.0);
+			break;
 		case GLFW_KEY_W:
 			keyF[0] = true;
 			break;
@@ -581,7 +624,10 @@ void Window::cursorEnterCallback(GLFWwindow* window, int entered) {
 
 }
 void Window::moving() {
-	if (Window::keyF[0]) {
+	if (autoOn) {
+		Window::eye += float(glfwGetTime()) * 0.005f * Window::center;
+	}
+	else if (Window::keyF[0]) {
 		Window::eye += 0.05f * Window::center;
 	}
 	if (Window::keyF[1]) {
@@ -603,9 +649,14 @@ void Window::decScore() {
 	if (score < 0) {
 		score = 0;
 	}
+	string path = Path_StripFilename(Path_GetExecutablePath()) + "\\exp.wav";
+	SoundEngine->play2D(path.c_str());
 }
 void Window::incScore() {
 	score++;
+	string path = Path_StripFilename(Path_GetExecutablePath()) + "\\gold.wav";
+	SoundEngine->play2D(path.c_str());
+	
 }
 
 void Window::gameOver() {
