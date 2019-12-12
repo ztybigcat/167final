@@ -55,6 +55,9 @@ public:
 	static Geometry* g_base1, * g_mid1, * g_mid2, * g_mid3, * g_top1, *g_terrian, * g_road, * g_park, * g_gold, * g_bomb, * g_win;
 	static std::vector<Transform*> blocks, roads, tokens;
 
+	static int score;
+	static bool over;
+
 	//static Binding * binder;
 	static Skybox * skybox;
 	static bool initializeProgram();
@@ -73,6 +76,8 @@ public:
 	static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 	static void cursorEnterCallback(GLFWwindow* window, int entered);
 	static void moving();
+	static void decScore();
+	static void incScore();
 };
 
 #endif
