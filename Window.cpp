@@ -258,20 +258,20 @@ bool Window::initializeObjects()
 			blocks[i]->addChild(park);
 		}
 		else {
-			std::vector<Transform*> buildings = std::vector<Transform*>(4);
-			buildings[0] = new Transform(glm::translate(glm::vec3(7.0f, 0.0f, 7.0f)));
-			buildings[1] = new Transform(glm::translate(glm::vec3(19.0f, 0.0f, 7.0f)));
-			buildings[2] = new Transform(glm::translate(glm::vec3(7.0f, 0.0f, 19.0f)));
-			buildings[3] = new Transform(glm::translate(glm::vec3(19.0f, 0.0f, 19.0f)));
+			std::vector<TopTrans*> buildings = std::vector<TopTrans*>(4);
+			buildings[0] = new TopTrans(glm::translate(glm::vec3(7.0f, 0.0f, 7.0f)));
+			buildings[1] = new TopTrans(glm::translate(glm::vec3(19.0f, 0.0f, 7.0f)));
+			buildings[2] = new TopTrans(glm::translate(glm::vec3(7.0f, 0.0f, 19.0f)));
+			buildings[3] = new TopTrans(glm::translate(glm::vec3(19.0f, 0.0f, 19.0f)));
 			for (int j = 0; j < 4; j++) {
 				blocks[i]->addChild(buildings[j]);
-				TopTrans* base1 = new TopTrans(glm::translate(glm::vec3(0.0f, 2.0f, 0.0f)));
+				Cell* base1 = new Cell(glm::translate(glm::vec3(0.0f, 2.0f, 0.0f)));
 				base1->addChild(g_base1);
 				buildings[j]->addChild(base1);
 				int midnum = int(std::rand() % 6 + 3);
 				for (int k = 0; k < midnum; k++) {
 					int type = int(rand() % 3);
-					TopTrans* mid = new TopTrans(glm::translate(glm::vec3(0.0f, 2.01f + 4.01f * (k + 1), 0.0f)));
+					Cell* mid = new Cell(glm::translate(glm::vec3(0.0f, 2.01f + 4.01f * (k + 1), 0.0f)));
 					if (type == 0) {
 						mid->addChild(g_mid1);
 					}
@@ -283,7 +283,7 @@ bool Window::initializeObjects()
 					}
 					buildings[j]->addChild(mid);
 				}
-				TopTrans* top1 = new TopTrans(glm::translate(glm::vec3(0.0f, 2.01f + 4.01f * (midnum + 1), 0.0f)));
+				Cell* top1 = new Cell(glm::translate(glm::vec3(0.0f, 2.01f + 4.01f * (midnum + 1), 0.0f)));
 				top1->addChild(g_top1);
 				buildings[j]->addChild(top1);		
 			}
@@ -397,6 +397,7 @@ void Window::idleCallback()
 {   
 //    lightObj->update();
 	Window::moving();
+	Window::blocks[int(Window::eye.z/30) * 10 + int((Window::eye.x+120)/30)]->detectCollision(Window::eye, glm::mat4(1.0f));
 }
 void Window::displayCallback(GLFWwindow* window)
 {
@@ -613,7 +614,7 @@ void Window::cursorEnterCallback(GLFWwindow* window, int entered) {
 }
 void Window::moving() {
 	if (Window::keyF[0]) {
-		Window::eye += 0.05f * Window::center;
+		Window::eye += 0.5f * Window::center;
 	}
 	if (Window::keyF[1]) {
 		Window::eye -= 0.05f * Window::center;
@@ -626,3 +627,6 @@ void Window::moving() {
 	}
 	Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, Window::up);
 }
+void Window::gameOver() { std::cout << "Game Over"; }
+void Window::incScore() {}
+void Window::decScore() {}

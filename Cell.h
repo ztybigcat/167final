@@ -1,6 +1,6 @@
 
-#ifndef TopTrans_h
-#define TopTrans_h
+#ifndef Cell_h
+#define Cell_h
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
@@ -20,15 +20,16 @@
 
 #include "Node.h"
 
-class TopTrans : public Node
+class Cell : public Node
 {
 private:
 	glm::mat4 M;
 	glm::mat4 init;
 	std::list<Node*> childs;
+	bool cResult;
 public:
-	TopTrans(glm::mat4 transM);
-	~TopTrans();
+	Cell(glm::mat4 transM);
+	~Cell();
 
 	void addChild(Node* child);
 	void draw(glm::mat4 C, GLuint program);
@@ -37,4 +38,4 @@ public:
 	void detectCollision(glm::vec3 eye, glm::mat4 C);
 };
 
-#endif /* TopTrans_h */
+#endif /* Cell_h */

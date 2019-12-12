@@ -18,6 +18,7 @@ protected:
 public:
     virtual void draw(glm::mat4 C, GLuint program) = 0;
     virtual void update(bool flag) = 0;
+	virtual void detectCollision(glm::vec3 eye, glm::mat4 C) = 0;
 };
 
 #endif /* Node_h */

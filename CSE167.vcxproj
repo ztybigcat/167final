@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Binding.h" />
+    <ClInclude Include="Cell.h" />
     <ClInclude Include="compat.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Geometry.h" />
@@ -136,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Binding.cpp" />
+    <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Light.cpp" />

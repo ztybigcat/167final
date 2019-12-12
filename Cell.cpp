@@ -1,40 +1,41 @@
 //
-//  TopTrans.cpp
+//  Cell.cpp
 //  CSE167 P2
 //
 //  Created by Yichen Zhang on 10/28/19.
 //  Copyright © 2019 Yichen Zhang. All rights reserved.
 //
 
-#include "TopTrans.h"
+#include "Cell.h"
 #include "Window.h"
-TopTrans::TopTrans(glm::mat4 transM)
+Cell::Cell(glm::mat4 transM)
 {
 	M = transM;
 	init = M;
 }
-TopTrans::~TopTrans()
+Cell::~Cell()
 {
 	for (Node* child : childs) {
 		delete child;
 	}
 }
-void TopTrans::addChild(Node* child) {
+void Cell::addChild(Node* child) {
 	childs.push_back(child);
 }
-void TopTrans::draw(glm::mat4 C, GLuint program) {
+void Cell::draw(glm::mat4 C, GLuint program) {
 	glm::mat4 M_new = C * M;
-	if (Window::cFlag){
+	if (Window::cFlag) {
 		//if (Window::unCalc) {
 			//Window::unCalc = false;
 		//}
-		if(!cResult){
+		if (!cResult) {
 			for (Node* child : childs) {
 				child->draw(M_new, program);
 			}
 			Window::cullingCount++;
 		}
-	}else{
+	}
+	else {
 		for (Node* child : childs) {
 			child->draw(M_new, program);
 		}
@@ -42,7 +43,7 @@ void TopTrans::draw(glm::mat4 C, GLuint program) {
 	}
 }
 
-void TopTrans::update(bool flag) {
+void Cell::update(bool flag) {
 	if (flag) {
 		M = glm::translate(M, glm::vec3(0.0f, 0.025f, 0.0f));
 	}
@@ -50,16 +51,12 @@ void TopTrans::update(bool flag) {
 		M = glm::translate(M, glm::vec3(0.0f, -0.025f, 0.0f));
 	}
 }
-void TopTrans::rotation(int i) {
+void Cell::rotation(int i) {
 }
 
-void TopTrans::detectCollision(glm::vec3 eye, glm::mat4 C) {
+void Cell::detectCollision(glm::vec3 eye, glm::mat4 C) {
 	glm::mat4 M_new = C * M;
-	if ((eye.x > M_new[3][0] - 5.0f) && (eye.x < M_new[3][0] + 5.0f)) {
-		if ((eye.z > M_new[3][2] - 5.0f) && (eye.z < M_new[3][2] + 5.0f)) {
-			for (Node* child : childs) {
-				child->detectCollision(eye, M_new);
-			}
-		}
+	if ((eye.y > M_new[3][1] - 2.0f) && (eye.y < M_new[3][1] + 2.0f)) {
+		Window::gameOver();
 	}
 }
