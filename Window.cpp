@@ -26,13 +26,17 @@ const char* Window::windowTitle = "GLFW Starter Project";
 //
 //Light * Window::lightObj;
 int blockStatus[100] = {}; //0 for building, 1 for park
+int tokenStatus[360] = {}; //0 for gold, 1 for bomb
 
 std::vector<Transform*> Window::blocks = std::vector<Transform*>(100);
 std::vector<Transform*> Window::roads = std::vector<Transform*>(18); //0-8 vertical left to right, 9-17 herizontal bottom to top
+std::vector<Transform*> Window::tokens = std::vector<Transform*>(360);//20 per road
 Transform * Window::root;
 Transform * Window::base1;
 Transform * Window::terrian;
 Transform * Window::park;
+Transform* Window::win;
+Transform* Window::allTokens;
 //Transform * Window::bindingS;
 
 //Geometry * Window::cube;
@@ -44,6 +48,9 @@ Geometry * Window::g_top1;
 Geometry* Window::g_terrian;
 Geometry* Window::g_road;
 Geometry* Window::g_park;
+Geometry* Window::g_win;
+Geometry* Window::g_gold;
+Geometry* Window::g_bomb;
 
 //Binding * Window::binder;
 
@@ -78,12 +85,12 @@ glm::vec3 Window::normR;
 
 glm::mat4 Window::projection; // Projection matrix.
 
-//glm::vec3 Window::eye(0.0f, 80.0f, -40.0f); // Camera position.
-glm::vec3 Window::eye(28.0f, 500.0f, 148.0f); // Camera position.
-//glm::vec3 Window::center(0.0f, 2.0f, 0.0f); // The point we are looking at.
-glm::vec3 Window::center(28.0f, 2.0f, 148.0f); // The point we are looking at.
-//glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
-glm::vec3 Window::up(1.0f, 0.0f, 0.0f); // The up direction of the camera.
+glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f); // Camera position.
+//glm::vec3 Window::eye(28.0f, 500.0f, 148.0f); // Camera position.
+glm::vec3 Window::center(0.0f, 18.0f, 148.0f); // The point we are looking at.
+//glm::vec3 Window::center(28.0f, 2.0f, 148.0f); // The point we are looking at.
+glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
+//glm::vec3 Window::up(1.0f, 0.0f, 0.0f); // The up direction of the camera.
 glm::vec3 Window::direction = glm::normalize(Window::center - Window::eye);
 glm::vec3 Window::right = glm::cross(Window::up, - Window::direction);
 
@@ -175,10 +182,13 @@ bool Window::initializeObjects()
 	g_terrian = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\terrian.obj", 1, glm::vec3(1.0,1.0,1.0));
 	g_road = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\road.obj", 1, glm::vec3(0.0,0.0,0.0));
 	g_park = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\park.obj", 1, glm::vec3(0.2, 0.4, 0.6));
+	g_gold = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\token.obj", 1, glm::vec3(0.6, 0.6, 0.4));
+	g_bomb = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\bomb.obj", 1, glm::vec3(0.1, 0.1, 0.1));
 	//binder = new Binding("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\cube.obj", 1);
 
     glm::mat4 identity = glm::mat4(1.0f);
     root = new Transform(identity);
+	allTokens = new Transform(identity);
 	terrian = new Transform(glm::translate(glm::vec3(28.0f,0.0f,148.0f)));
 	for (int i = 0; i < 18; i++) {
 		if (i < 9) {
@@ -193,6 +203,23 @@ bool Window::initializeObjects()
 			blocks[i+10*j] = new Transform(glm::translate(glm::vec3(-120.0f+30*i, 0.0f, j * 30)));
 		}
 	}
+	int arr[74];
+	for (int i = 0; i < 74; i++) {
+		arr[i] = i;
+	}
+	for (int i = 0; i < 18; i++) {
+		shuffle(arr, 74);
+		if(i<9){
+			for (int j = 0; j < 20; j++) {
+				tokens[j + 20 * i] = new Transform(glm::translate(glm::vec3(-92 + i*30, 18, 2 + 4 * arr[j]))* glm::rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+			}
+		}
+		else {
+			for (int j = 0; j < 20; j++) {
+				tokens[j + 20 * i] = new Transform(glm::translate(glm::vec3(-118 + 4 * arr[j], 18, 28 + 30 * (i - 9))));
+			}
+		}
+	}
 	park = new Transform(glm::translate(glm::vec3(13.0f, 0.15f, 13.0f)));
 	blockStatus[11] = 1;
 	blockStatus[12] = 1;
@@ -203,9 +230,15 @@ bool Window::initializeObjects()
 			}
 		}
 	}
+	for (int i = 0; i < 360; i++) {
+		if (std::rand() % 5 > 3) {
+			tokenStatus[i] = 1;
+		}
+	}
 
 	root->addChild(terrian);
 	terrian->addChild(g_terrian);
+	root->addChild(allTokens);
 	park->addChild(g_park);
 	for (int i = 0; i < 18; i++) {
 		root->addChild(roads[i]);
@@ -248,6 +281,16 @@ bool Window::initializeObjects()
 				top1->addChild(g_top1);
 				buildings[j]->addChild(top1);		
 			}
+		}
+	}
+	for (int i = 0; i < 360; i++) {
+		if (tokenStatus[i] == 1) {
+			allTokens->addChild(tokens[i]);
+			tokens[i]->addChild(g_bomb);
+		}
+		else {
+			allTokens->addChild(tokens[i]);
+			tokens[i]->addChild(g_gold);
 		}
 	}
 	return true;
@@ -542,6 +585,18 @@ void Window::mouseButtonCheck(GLFWwindow* window, double xpos, double ypos)
 }
 void Window::cursorPositionCallback(GLFWwindow* window, double xpos, double ypos){
 //        mouseButtonCheck(window, xpos, ypos);
+}
+void Window::shuffle(int* arr, size_t n) {
+	if (n > 1) {
+		size_t i;
+		srand(time(0));
+		for (i = 0; i < n - 1; i++) {
+			size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+			int t = arr[j];
+			arr[j] = arr[i];
+			arr[i] = t;
+		}
+	}
 }
 void Window::frustumCalc() {
 	Window::fc = Window::eye+glm::normalize(Window::direction)*float(1000);
