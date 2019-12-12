@@ -13,6 +13,7 @@ layout (location = 1) in vec3 anormal;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
+uniform mat4 lightSpaceMatrix;
 
 // Outputs of the vertex shader are the inputs of the same name of the fragment shader.
 // The default output, gl_Position, should be assigned something. You can define as many
@@ -20,6 +21,7 @@ uniform mat4 model;
 out float sampleExtraOutput;
 out vec3 fragPos;
 out vec3 normal;
+out vec4 FragPosLightSpace;
 
 void main()
 {
@@ -28,4 +30,5 @@ void main()
     sampleExtraOutput = 1.0f;
     fragPos = vec3(model * vec4(aposition,1.0));
     normal = mat3(transpose(inverse(model))) * anormal;
+	FragPosLightSpace = lightSpaceMatrix * vec4(fragPos, 1.0);
 }

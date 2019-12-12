@@ -18,6 +18,9 @@ bool Window::debugMode = false;
 int Window::count = 0;
 int Window::cullingCount = 0;
 bool Window::keyF[4] = {};
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+unsigned int depthMapFBO;
+unsigned int depthMap;
 
 bool Window::firstMouse = false;
 float Window::yaw = 0.0f;
@@ -108,6 +111,8 @@ glm::mat4 Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, 
 
 
 GLuint Window::program; // The shader program id.
+GLuint Window::shadowProgram;
+GLuint Window::debugDepthQuad;
 
 GLuint Window::projectionLoc; // Location of projection in shader.
 GLuint Window::viewLoc; // Location of view in shader.
@@ -125,6 +130,8 @@ GLuint Window::flagLoc;
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	program = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
+	shadowProgram = LoadShaders("shaders/shadowShaders.vert", "shaders/shadowShaders.frag");
+	debugDepthQuad = LoadShaders("shaders/depth.vert", "shaders/depth.frag");
 
 	// Check the shader program.
 	if (!program)
@@ -275,6 +282,61 @@ bool Window::initializeObjects()
 			}
 		}
 		glfwSetTime(0.0);
+
+		// configure depth map FBO
+		// -----------------------
+
+		glGenFramebuffers(1, &depthMapFBO);
+		// create depth texture
+
+		glGenTextures(1, &depthMap);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		// attach depth texture as FBO's depth buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//glUniform1i(glGetUniformLocation(program, "shadowMap"), 1);
+		//glUniform1i(glGetUniformLocation(debugDepthQuad, "depthMap"), 1);
+
+
+		//GLuint FramebufferName = 0;
+		//glGenFramebuffers(1, &FramebufferName);
+		//glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+		//// The texture we're going to render to
+		//GLuint renderedTexture;
+		//glGenTextures(1, &renderedTexture);
+
+		//// "Bind" the newly created texture : all future texture functions will modify this texture
+		//glBindTexture(GL_TEXTURE_2D, renderedTexture);
+
+		//// Give an empty image to OpenGL ( the last "0" )
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+		//// Poor filtering. Needed !
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//GLuint depthrenderbuffer;
+		//glGenRenderbuffers(1, &depthrenderbuffer);
+		//glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+		//glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+		//// Set the list of draw buffers.
+		//GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		//glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		//	return false;
 	}
 
 
@@ -395,6 +457,33 @@ bool already = false;
 
 void Window::displayCallback(GLFWwindow* window)
 {
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// 1. render depth of scene to texture (from light's perspective)
+// --------------------------------------------------------------
+	glm::mat4 lightProjection, lightView;
+	glm::mat4 lightSpaceMatrix;
+	float near_plane = 1.0f, far_plane = 7.5f;
+	//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	lightView = glm::lookAt(glm::vec3(-2.0f, -100.0f, -1.0f), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	lightSpaceMatrix = lightProjection * lightView;
+	// render scene from light's point of view
+	glUseProgram(shadowProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shadowProgram, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindTexture(program, depthMap);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+	root->draw(glm::mat4(1.0f), shadowProgram);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// reset viewport
+	glViewport(0, 0, Window::width, Window::height);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	if (over && !already) {
 		glfwSetWindowTitle(window, ("Silkman-- GameOver! Your Score is " + to_string(score)).c_str());
 		SoundEngine->stopAllSounds();
@@ -419,9 +508,13 @@ void Window::displayCallback(GLFWwindow* window)
 	
 
 	//printf("Number %d", Window::cullingCount);
+	glUniform3fv(viewPosLoc, 1, value_ptr(Window::eye));
 
 	glUniform3fv(lightColorLoc, 1, value_ptr(glm::vec3(1.,1.,1.)));
-	glUniform3fv(lightPosLoc, 1, value_ptr(glm::vec3(0.0, -100.0, 100.0)));
+	glUniform3fv(lightPosLoc, 1, value_ptr(glm::vec3(-2.0f, -10.0f, -1.0f)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
 	root->draw(glm::mat4(1.0f), program);
 
 	skybox->updateProjection(projection);

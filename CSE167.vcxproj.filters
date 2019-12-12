@@ -131,13 +131,19 @@
     <None Include="shaders\skybox.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
-    <None Include="shaders\sm.frag">
+    <None Include="shaders\sm.frag" />
+    <None Include="shaders\sm.vert" />
+    <None Include="shadowShaders.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="shaders\sm.vert">
+    <None Include="shadowShaders.frag">
       <Filter>Source Files\Shader</Filter>
-    </Text>
+    </None>
+    <None Include="depth.vert">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+    <None Include="depth.frag">
+      <Filter>Source Files\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

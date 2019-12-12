@@ -110,12 +110,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="depth.frag" />
+    <None Include="depth.vert" />
     <None Include="packages.config" />
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\sm.frag" />
+    <None Include="shaders\sm.vert" />
+    <None Include="shadowShaders.frag" />
+    <None Include="shadowShaders.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Binding.h" />
@@ -152,9 +157,6 @@
     <ClCompile Include="TopTrans.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="shaders\sm.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

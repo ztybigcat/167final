@@ -54,7 +54,7 @@ public:
 	static glm::vec3 eye, center, up, direction, right;
 	static glm::vec3 fc, ftl, ftr, fbl, fbr, nc, ntl, ntr, nbl, nbr, normF, normN, normU, normB, normR, normL;
 
-	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc, lightPosLoc, lightColorLoc, materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc, flagLoc;
+	static GLuint program, shadowProgram, debugDepthQuad, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc, lightPosLoc, lightColorLoc, materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc, flagLoc;
 	static Transform* root, * base1, * terrian, * park, * win, *allTokens;
 	static Geometry* g_base1, * g_mid1, * g_mid2, * g_mid3, * g_top1, *g_terrian, * g_road, * g_park, * g_gold, * g_bomb, * g_win;
 	static std::vector<Transform*> blocks, roads;
