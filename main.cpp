@@ -19,7 +19,8 @@ void setup_callbacks(GLFWwindow* window)
     // Set mouse button callback.
     glfwSetMouseButtonCallback(window, Window::mouseButtonCallback);
     
-    glfwSetCursorPosCallback(window, Window::cursorPositionCallback);
+    glfwSetCursorPosCallback(window, Window::mouseCallback);
+	glfwSetCursorEnterCallback(window, Window::cursorEnterCallback);
 }
 
 void setup_opengl_settings()
@@ -51,7 +52,7 @@ void print_versions()
 int main(void)
 {
 	// Create the GLFW window.
-	GLFWwindow* window = Window::createWindow(640, 480);
+	GLFWwindow* window = Window::createWindow(2560, 1440);
 	if (!window) exit(EXIT_FAILURE);
 
 	// Print OpenGL and GLSL versions.

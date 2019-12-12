@@ -14,6 +14,13 @@ bool Window::f = true;
 bool Window::debugMode = false;
 int Window::count = 0;
 int Window::cullingCount = 0;
+bool Window::keyF[4] = {};
+
+bool Window::firstMouse = false;
+float Window::yaw = 0.0f;
+float Window::pitch = 0.0f;
+float Window::lastX = float(Window::width) /2.0;
+float Window::lastY = float(Window::height) / 2.0;
 
 const char* Window::windowTitle = "GLFW Starter Project";
 
@@ -73,24 +80,26 @@ glm::vec3 Window::normR;
 
 glm::mat4 Window::projection; // Projection matrix.
 
-glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f); // Camera position.
+//glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f); // Camera position.
 //glm::vec3 Window::eye(28.0f, 500.0f, 148.0f); // Camera position.
-glm::vec3 Window::center(0.0f, 18.0f, 148.0f); // The point we are looking at.
+//glm::vec3 Window::center(0.0f, 18.0f, 148.0f); // The point we are looking at.
 //glm::vec3 Window::center(28.0f, 2.0f, 148.0f); // The point we are looking at.
-glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
+//glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
 //glm::vec3 Window::up(1.0f, 0.0f, 0.0f); // The up direction of the camera.
 
-//glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f);
+glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f);
+glm::vec3 Window::center(0.0f, 0.0f, 1.0f);
+glm::vec3 Window::up(0.0f, 1.0f, 0.0f);
 
-glm::vec3 Window::direction = glm::normalize(Window::center - Window::eye);
-glm::vec3 Window::right = glm::cross(Window::up, - Window::direction);
+//glm::vec3 Window::direction = glm::normalize(Window::center - Window::eye);
+//glm::vec3 Window::right = glm::cross(Window::up, - Window::direction);
 
 //glm::vec3 materialAmbient;
 //glm::vec3 materialDiffuse;
 //glm::vec3 materialSpecular;
 
 // View matrix, defined by eye, center and up.
-glm::mat4 Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
+glm::mat4 Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, Window::up);
 
 
 GLuint Window::program; // The shader program id.
@@ -138,10 +147,7 @@ bool Window::initializeProgram() {
 
 	Window::projection = glm::perspective(glm::radians(Window::fov),
 		double(Window::width) / (double)Window::height, 1.0, 1000.0);
-	Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
-	if (!debugMode) {
-		Window::frustumCalc();
-	}
+	Window::view = glm::lookAt(Window::eye, Window::eye+Window::center, Window::up);
 	return true;
 }
 
@@ -265,7 +271,7 @@ bool Window::initializeObjects()
 				int midnum = int(std::rand() % 6 + 3);
 				for (int k = 0; k < midnum; k++) {
 					int type = int(rand() % 3);
-					TopTrans* mid = new TopTrans(glm::translate(glm::vec3(0.0f, 2.0f + 4.0f * (k + 1), 0.0f)));
+					TopTrans* mid = new TopTrans(glm::translate(glm::vec3(0.0f, 2.01f + 4.01f * (k + 1), 0.0f)));
 					if (type == 0) {
 						mid->addChild(g_mid1);
 					}
@@ -277,7 +283,7 @@ bool Window::initializeObjects()
 					}
 					buildings[j]->addChild(mid);
 				}
-				TopTrans* top1 = new TopTrans(glm::translate(glm::vec3(0.0f, 2.0f + 4.0f * (midnum + 1), 0.0f)));
+				TopTrans* top1 = new TopTrans(glm::translate(glm::vec3(0.0f, 2.01f + 4.01f * (midnum + 1), 0.0f)));
 				top1->addChild(g_top1);
 				buildings[j]->addChild(top1);		
 			}
@@ -385,12 +391,12 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	// Set the projection matrix.
 	Window::projection = glm::perspective(glm::radians(fov), 
 		double(width) / (double)height, 1.0, 1000.0);
-	Window::frustumCalc();
 }
 
 void Window::idleCallback()
 {   
 //    lightObj->update();
+	Window::moving();
 }
 void Window::displayCallback(GLFWwindow* window)
 {
@@ -432,106 +438,42 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
-//		case GLFW_KEY_1:
-//			// Set currentObj to cube
-//			currentObj = cube;
-//			break;
-//		case GLFW_KEY_2:
-//			// Set currentObj to cubePoints
-//			currentObj = cubePoints;
-//			break;
-//        case GLFW_KEY_F1:
-//            currentObj = bunnyPoints;
-//            materialAmbient = bunnyMaterialAmbient;
-//            materialDiffuse = bunnyMaterialDiffuse;
-//            materialSpecular = bunnyMaterialSpecular;
-//            break;
-//        case GLFW_KEY_F2:
-//            currentObj = dragonPoints;
-//            materialAmbient = dragonMaterialAmbient;
-//            materialDiffuse = dragonMaterialDiffuse;
-//            materialSpecular = dragonMaterialSpecular;
-//            break;
-//        case GLFW_KEY_F3:
-//            currentObj = bearPoints;
-//            materialAmbient = bearMaterialAmbient;
-//            materialDiffuse = bearMaterialDiffuse;
-//            materialSpecular = bearMaterialSpecular;
-//            break;
-//        case GLFW_KEY_P:
-//            if (mods == GLFW_MOD_SHIFT){
-//                currentObj->updatePointSizeL();
-//            }else{
-//                currentObj->updatePointSizeS();
-//            }
-//            break;
         case GLFW_KEY_N:
 		{glUniform1f(flagLoc, !normalFlag);
 		Window::normalFlag = !Window::normalFlag;
 		break; }
+		case GLFW_KEY_W:
+			keyF[0] = true;
+			break;
 		case GLFW_KEY_S:
-			//binder->sFlag = !binder->sFlag;
+			keyF[1] = true;
 			break;
-		case GLFW_KEY_C:
-			Window::cFlag = !Window::cFlag;
+		case GLFW_KEY_A:
+			keyF[2] = true;
 			break;
-		case GLFW_KEY_D: {
-			Window::debugMode = !Window::debugMode;
-			if (debugMode) {
-				Window::fov = Window::fov + 5.0f;
-			}
-			else {
-				Window::fov = Window::fov - 2.0f;
-			}
-			Window::projection = glm::perspective(glm::radians(Window::fov),
-				double(Window::width) / double(Window::height), 1.0, 1000.0);
+		case GLFW_KEY_D: 
+			keyF[3] = true;
+			break;
+		default:
 			break;
 		}
-//        case GLFW_KEY_1:
-//            lightSwitch = 0;
-//            break;
-//        case GLFW_KEY_2:
-//            lightSwitch = 1;
-//            break;
-//        case GLFW_KEY_3:
-//            lightSwitch = 2;
-//            break;
-        case GLFW_KEY_UP:
-		{Window::direction = glm::rotate(glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 1.0f)) * glm::vec4(Window::direction, 0.0f);
-		Window::center = Window::direction + Window::eye;
-		Window::up = glm::normalize(glm::cross(-Window::direction, Window::right));//glm::rotate(glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(Window::up, 0);
-		Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
-		if (!Window::debugMode) {
-			Window::frustumCalc();
-		}
-		break; }
-        case GLFW_KEY_DOWN:
-		{Window::direction = glm::rotate(glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 1.0f)) * glm::vec4(Window::direction, 0.0f);
-		Window::center = Window::direction + Window::eye;
-		Window::up = glm::normalize(glm::cross(-Window::direction, Window::right));//glm::rotate(glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(Window::up, 0);
-		Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
-		if (!Window::debugMode) {
-			Window::frustumCalc();
-		}
-		break; }
-        case GLFW_KEY_LEFT:
-		{Window::direction = glm::rotate(glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(Window::direction, 0.0f);
-		Window::center = Window::direction + Window::eye;
-		Window::right = glm::normalize(glm::cross(Window::up, -Window::direction));//glm::rotate(glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(Window::up, 0);
-		Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
-		if (!Window::debugMode) {
-			Window::frustumCalc();
-		}
-		break; }
-        case GLFW_KEY_RIGHT:
-		{Window::direction = glm::rotate(glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(Window::direction, 0.0f);
-		Window::center = Window::direction + Window::eye;
-		Window::right = glm::normalize(glm::cross(Window::up, -Window::direction));//glm::rotate(glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(Window::up, 0);
-		Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
-		if (!Window::debugMode) {
-			Window::frustumCalc();
-		}
-		break; }
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_W:
+			keyF[0] = false;
+			break;
+		case GLFW_KEY_S:
+			keyF[1] = false;
+			break;
+		case GLFW_KEY_A:
+			keyF[2] = false;
+			break;
+		case GLFW_KEY_D:
+			keyF[3] = false;
+			break;
 		default:
 			break;
 		}
@@ -540,22 +482,21 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	//double dif = 0;
-	if (yoffset > 0) {
-		//dif = 0.5;
-		Window::fov += 0.5;
-	}
-	if (yoffset < 0) {
-		//dif = -0.5;
-		Window::fov -= 0.5;
+	if (Window::fov >= 1.0f && Window::fov <= 90.0f) {
+		if (yoffset > 0) {
+			//dif = 0.5;
+			Window::fov += 0.5;
+		}
+		if (yoffset < 0) {
+			//dif = -0.5;
+			Window::fov -= 0.5;
+		}
 	}
 	//Window::fov = std::min(Window::fov + dif, double(120.0));
 	//Window::fov = std::max(Window::fov + dif, double(20.0));
 	Window::projection = glm::perspective(glm::radians(Window::fov),
 		double(Window::width) / double(Window::height), 1.0, 1000.0);
 	//skybox->updateProjection(projection);
-	if (!debugMode) {
-		Window::frustumCalc();
-	}
 	//glm::translate(view,glm::vec3(0.0f,0.0f,yoffset*0.1f));
 }
 void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -578,6 +519,49 @@ void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int
 //            buttonDown = false;
 //        }
 //    }
+}
+void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+	
+
+
+
+	float xoffset = xpos - float(Window::width) / 2.0;
+	float yoffset = float(Window::height) / 2.0 - ypos;
+	glfwSetCursorPos(window, float(Window::width) / 2.0, float(Window::height) / 2.0);
+	lastX = xpos;
+	lastY = ypos;
+
+	float sensitivity = 0.05;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	//if (yoffset > 0) {
+	//	pitch += sensitivity;
+	//}
+	//else if (yoffset < 0) {
+	//	pitch -= sensitivity;
+	//}
+	//if (xoffset > 0) {
+	//	yaw += sensitivity;
+	//}
+	//else if (yoffset < 0) {
+	//	yaw -= sensitivity;
+	//}
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	Window::center = glm::normalize(front);
+	Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, Window::up);
 }
 void Window::mouseButtonCheck(GLFWwindow* window, double xpos, double ypos)
 {
@@ -616,28 +600,29 @@ void Window::shuffle(int* arr, size_t n) {
 		}
 	}
 }
-void Window::frustumCalc() {
-	Window::fc = Window::eye+glm::normalize(Window::direction)*float(1000);
-	float hnh = float(glm::tan(glm::radians(Window::fov) / 2)) * 1.0f;
-	float hnw = float(Window::width) / float(Window::height) * hnh;
-	glm::vec3 nU = glm::normalize(Window::up);
-	glm::vec3 nR = glm::normalize(Window::right);
-	Window::ntl = nc + (nU * hnh) - (nR * hnw);
-	Window::ntr = nc + (nU * hnh) + (nR * hnw);
-	Window::nbl = nc - (nU * hnh) - (nR * hnw);
-	Window::nbr = nc - (nU * hnh) + (nR * hnw);
-	Window::nc = Window::eye + glm::normalize(Window::direction) * float(1);
-	//float hnh = hnh*1000.0f;
-	//float hnw = hnw*1000.0f;
-	//Window::ntl = nc + (Window::up * hnh) - (Window::right * hnw);
-	//Window::ntr = nc + (Window::up * hnh) + (Window::right * hnw);
-	//Window::nbl = nc - (Window::up * hnh) - (Window::right * hnw);
-	//Window::nbr = nc - (Window::up * hnh) + (Window::right * hnw);
-	Window::normF = glm::normalize(Window::direction);
-	Window::normN = glm::normalize(-Window::direction);
-	Window::normR = glm::cross(glm::normalize((nc + nR * hnw) - Window::eye),nU);
-	Window::normL = glm::cross(nU,glm::normalize((nc - nR * hnw) - Window::eye));
-	Window::normU = glm::cross(nR,glm::normalize((nc + nU * hnh) - Window::eye));
-	Window::normB = glm::cross(glm::normalize((nc - nU * hnh) - Window::eye),nR);
-	//Window::unCalc = true;
+void Window::cursorEnterCallback(GLFWwindow* window, int entered) {
+	//if (entered) {
+	//	Window::firstMouse = true;
+	//	glfwSetCursorPos(window, float(Window::width) / 2.0, float(Window::height) / 2.0);
+	//}
+	//else {
+	//	Window::firstMouse = false;
+	//	Window::lastX = float(Window::width) / 2.0;
+	//	Window::lastY = float(Window::height) / 2.0;
+	//}
+}
+void Window::moving() {
+	if (Window::keyF[0]) {
+		Window::eye += 0.05f * Window::center;
+	}
+	if (Window::keyF[1]) {
+		Window::eye -= 0.05f * Window::center;
+	}
+	if (Window::keyF[2]) {
+		Window::eye -= glm::normalize(glm::cross(Window::center, Window::up)) * 0.05f;
+	}
+	if (Window::keyF[3]) {
+		Window::eye += glm::normalize(glm::cross(Window::center, Window::up)) * 0.05f;
+	}
+	Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, Window::up);
 }

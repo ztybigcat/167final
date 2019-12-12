@@ -41,8 +41,10 @@ public:
 	static double fov;
     static bool f;
 	static bool debugMode;
-    static bool normalFlag, cFlag, unCalc;
+    static bool normalFlag, cFlag, unCalc, firstMouse;
+	static float yaw, pitch, lastX, lastY;
 	static const char* windowTitle;
+	static bool keyF[4];
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up, direction, right;
@@ -58,7 +60,6 @@ public:
 	static bool initializeProgram();
 	static bool initializeObjects();
 	static void cleanUp();
-    static void updateModel(Geometry * geo);
 	static GLFWwindow* createWindow(int width, int height);
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 	static void idleCallback();
@@ -68,8 +69,10 @@ public:
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void mouseButtonCheck(GLFWwindow* window, double xpos, double ypos);
     static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
-	static void frustumCalc();
 	static void shuffle(int* arr, size_t n);
+	static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
+	static void cursorEnterCallback(GLFWwindow* window, int entered);
+	static void moving();
 };
 
 #endif
