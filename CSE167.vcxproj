@@ -131,6 +131,7 @@
     <ClInclude Include="Skybox.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="strtools.h" />
+    <ClInclude Include="Token.h" />
     <ClInclude Include="TopTrans.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Window.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="strtools.cpp" />
+    <ClCompile Include="Token.cpp" />
     <ClCompile Include="TopTrans.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
