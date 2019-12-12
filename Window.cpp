@@ -80,6 +80,8 @@ glm::vec3 Window::center(0.0f, 18.0f, 148.0f); // The point we are looking at.
 glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
 //glm::vec3 Window::up(1.0f, 0.0f, 0.0f); // The up direction of the camera.
 
+//glm::vec3 Window::eye(-0.5f, 18.0f, -10.0f);
+
 glm::vec3 Window::direction = glm::normalize(Window::center - Window::eye);
 glm::vec3 Window::right = glm::cross(Window::up, - Window::direction);
 
@@ -177,8 +179,10 @@ bool Window::initializeObjects()
 	g_road = new Geometry(path + "\\objs\\road.obj", 1, mat);
 	mat = { glm::vec3(0.0,0.4,0.75) ,glm::vec3(0.4,0.4,0.4) ,glm::vec3(0.5,0.5,0.5) ,glm::vec3(0.7,0.7,0.7) ,0.7 };
 	g_park = new Geometry(path + "\\objs\\park.obj", 1, mat);
-	g_gold = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\token.obj", 1, glm::vec3(0.6, 0.6, 0.4));
-	g_bomb = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\bomb.obj", 1, glm::vec3(0.1, 0.1, 0.1));
+	mat = { glm::vec3(0.75,0.75,0.0) ,glm::vec3(0.25,0.20725,0.20725) ,glm::vec3(1.0,0.829,0.829) ,glm::vec3(0.892157,0.841176,0.707843) ,0.21794872 };
+	g_gold = new Geometry(path + "\\objs\\token.obj", 1, mat);
+	mat = { glm::vec3(0.1,0.1,0.1) ,glm::vec3(0.4,0.4,0.4) ,glm::vec3(0.5,0.5,0.5) ,glm::vec3(0.7,0.7,0.7) ,0.7 };
+	g_bomb = new Geometry(path + "\\objs\\bomb.obj", 1, mat);
 	//binder = new Binding("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\cube.obj", 1);
 
 
