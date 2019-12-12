@@ -11,7 +11,7 @@
 #include "stb_image.h"
 Skybox::Skybox(){
     // The 8 vertices of a cu5be.
-    int l = 1000;
+    int l = 300;
     std::vector<glm::vec3> vertices
     {
         glm::vec3(-l, l, l),

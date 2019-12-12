@@ -22,7 +22,9 @@ float Window::pitch = 0.0f;
 float Window::lastX = float(Window::width) /2.0;
 float Window::lastY = float(Window::height) / 2.0;
 
-const char* Window::windowTitle = "GLFW Starter Project";
+const char* Window::windowTitle = "Silkman";
+int Window::score = 0;
+bool Window::over = false;
 
 Skybox* Window::skybox;
 
@@ -217,12 +219,12 @@ bool Window::initializeObjects()
 		shuffle(arr, 74);
 		if(i<9){
 			for (int j = 0; j < 20; j++) {
-				tokens[j + 20 * i] = new Token(glm::translate(glm::vec3(-92 + i*30, 18, 2 + 4 * arr[j]))* glm::rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+				tokens[j + 20 * i] = new Token(glm::translate(glm::vec3(-92 + i*30, 22 + rand() % 30 - 15, 2 + 4 * arr[j]))* glm::rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 			}
 		}
 		else {
 			for (int j = 0; j < 20; j++) {
-				tokens[j + 20 * i] = new Token(glm::translate(glm::vec3(-118 + 4 * arr[j], 18, 28 + 30 * (i - 9))));
+				tokens[j + 20 * i] = new Token(glm::translate(glm::vec3(-118 + 4 * arr[j], 22 +rand() % 30-15, 28 + 30 * (i - 9))));
 			}
 		}
 	}
@@ -291,11 +293,6 @@ bool Window::initializeObjects()
 	}
 
 
-	//skybox = new Skybox();
-	//skybox->init();
-	//skybox->updateProjection(projection);
-	//skybox->updateView(view);
-
 	for (int i = 0; i < 360; i++) {
 		if (tokenStatus[i] == 1) {
 			allTokens->addChild(tokens[i]);
@@ -306,6 +303,10 @@ bool Window::initializeObjects()
 			tokens[i]->addChild(g_gold);
 		}
 	}
+	skybox = new Skybox();
+	skybox->init();
+	skybox->updateProjection(projection);
+	skybox->updateView(view);
 
 	return true;
 }
@@ -395,7 +396,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Window::idleCallback()
 {   
-//    lightObj->update();
+	
 	Window::moving();
 	Window::blocks[int(Window::eye.z/30) * 10 + int((Window::eye.x+120)/30)]->detectCollision(Window::eye, glm::mat4(1.0f));
 	Window::allTokens->detectCollision(Window::eye, glm::mat4(1.0f));
@@ -404,20 +405,24 @@ void Window::displayCallback(GLFWwindow* window)
 {
     // Clear the color and depth buffers.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(program);
+
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(Window::view));
-	Window::cullingCount = 0;
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->getTexture());
     // Render the object.
-	glUseProgram(program);
+	
 
 	//printf("Number %d", Window::cullingCount);
 
 	glUniform3fv(lightColorLoc, 1, value_ptr(glm::vec3(1.,1.,1.)));
 	glUniform3fv(lightPosLoc, 1, value_ptr(glm::vec3(0.0, -100.0, 100.0)));
 	root->draw(glm::mat4(1.0f), program);
-	//skybox->updateProjection(projection);
-	//skybox->updateView(view);
-	//skybox->draw();
+
+	skybox->updateProjection(projection);
+	skybox->updateView(view);
+	skybox->draw();   
+	//glfwSetWindowTitle(window, "Silkman-- Score: "+ score.toString());
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -498,7 +503,7 @@ void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	//Window::fov = std::max(Window::fov + dif, double(20.0));
 	Window::projection = glm::perspective(glm::radians(Window::fov),
 		double(Window::width) / double(Window::height), 1.0, 1000.0);
-	//skybox->updateProjection(projection);
+	skybox->updateProjection(projection);
 	//glm::translate(view,glm::vec3(0.0f,0.0f,yoffset*0.1f));
 }
 void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -537,19 +542,6 @@ void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
-	//if (yoffset > 0) {
-	//	pitch += sensitivity;
-	//}
-	//else if (yoffset < 0) {
-	//	pitch -= sensitivity;
-	//}
-	//if (xoffset > 0) {
-	//	yaw += sensitivity;
-	//}
-	//else if (yoffset < 0) {
-	//	yaw -= sensitivity;
-	//}
-
 	yaw += xoffset;
 	pitch += yoffset;
 
@@ -564,28 +556,11 @@ void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	Window::center = glm::normalize(front);
 	Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, Window::up);
+	skybox->updateView(view);
 }
 void Window::mouseButtonCheck(GLFWwindow* window, double xpos, double ypos)
 {
-//    if(buttonDown)
-//    {
-//        glm::vec3 v;
-//        float d;
-//        v.x = float((2*xpos-width)/width);
-//        v.y = float((height-2*ypos)/height);
-//        v.z = 0.0f;
-//        d = glm::length(v);
-//        d = (d<1)?d:1;
-//        v.z = float(sqrtf(1.001-d*d));
-//        v = glm::normalize(v);
-//        if((glm::length(lastPoint - v) > 0.0001))
-//        {
-//            glm::vec3 rAxis = glm::cross(lastPoint,v);
-//            float angle = glm::dot(lastPoint,v)*0.2;
-//            view=glm::rotate(glm::radians(angle),rAxis)*view;
-//        }
-//        lastPoint = v;
-//    }
+
 }
 void Window::cursorPositionCallback(GLFWwindow* window, double xpos, double ypos){
 //        mouseButtonCheck(window, xpos, ypos);
@@ -603,19 +578,11 @@ void Window::shuffle(int* arr, size_t n) {
 	}
 }
 void Window::cursorEnterCallback(GLFWwindow* window, int entered) {
-	//if (entered) {
-	//	Window::firstMouse = true;
-	//	glfwSetCursorPos(window, float(Window::width) / 2.0, float(Window::height) / 2.0);
-	//}
-	//else {
-	//	Window::firstMouse = false;
-	//	Window::lastX = float(Window::width) / 2.0;
-	//	Window::lastY = float(Window::height) / 2.0;
-	//}
+
 }
 void Window::moving() {
 	if (Window::keyF[0]) {
-		Window::eye += 0.5f * Window::center;
+		Window::eye += 0.05f * Window::center;
 	}
 	if (Window::keyF[1]) {
 		Window::eye -= 0.05f * Window::center;
@@ -627,7 +594,21 @@ void Window::moving() {
 		Window::eye += glm::normalize(glm::cross(Window::center, Window::up)) * 0.05f;
 	}
 	Window::view = glm::lookAt(Window::eye, Window::eye + Window::center, Window::up);
+
+	skybox->updateView(view);
 }
-void Window::gameOver() { std::cout << "Game Over"; }
-void Window::incScore() { std::cout << "Inc"; }
-void Window::decScore() { std::cout << "Dec"; }
+
+void Window::decScore() {
+	score = score - 3;
+	if (score < 0) {
+		score = 0;
+	}
+}
+void Window::incScore() {
+	score++;
+}
+
+void Window::gameOver() {
+	over = true;
+}
+

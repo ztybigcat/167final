@@ -58,6 +58,9 @@ public:
 	static std::vector<Transform*> blocks, roads;
 	static std::vector<Token*> tokens;
 
+	static int score;
+	static bool over;
+
 	//static Binding * binder;
 	static Skybox * skybox;
 	static bool initializeProgram();
@@ -76,9 +79,11 @@ public:
 	static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 	static void cursorEnterCallback(GLFWwindow* window, int entered);
 	static void moving();
+
 	static void gameOver();
 	static void incScore();
 	static void decScore();
+
 };
 
 #endif
