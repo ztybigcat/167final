@@ -29,6 +29,7 @@
 #include "shader.h"
 #include "Light.h"
 #include "Node.h"
+#include "Cell.h"
 #include "Skybox.hpp"
 class Window
 {
@@ -76,8 +77,11 @@ public:
 	static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 	static void cursorEnterCallback(GLFWwindow* window, int entered);
 	static void moving();
-	static void decScore();
+
+	static void gameOver();
 	static void incScore();
+	static void decScore();
+
 };
 
 #endif

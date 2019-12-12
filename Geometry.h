@@ -53,7 +53,7 @@ public:
     void update(bool flag);
     void setModelMatrixM(glm::mat4 M);
     void rendering();
-    
+	void detectCollision(glm::vec3 eye, glm::mat4 C);
 };
 
 #endif /* Geometry_h */

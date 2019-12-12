@@ -7,6 +7,7 @@
 //
 
 #include "Transform.h"
+#include "Window.h"
 
 Transform::Transform(glm::mat4 transM)
 {
@@ -44,5 +45,14 @@ void Transform::rotation(glm::mat4 C){
 		//M = glm::translate(glm::vec3(-6.5f, 6.5f, 0.0f))*glm::rotate(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f))*glm::rotate(glm::radians(float(glfwGetTime()*20)),glm::vec3(1.0f,0.0f,0.0f))*glm::scale(glm::vec3(2.0f, 8.0f, 4.0f));
 	//else
 		//M = glm::translate(glm::rotate(glm::radians(0.1f), glm::vec3(0.0f, 0.0f, 1.0f))*M,trans);
+}
+void Transform::detectCollision(glm::vec3 eye, glm::mat4 C) {
+	glm::mat4 M_new = C * M;
+	if (eye.y <= 0) {
+		Window::gameOver();
+	}
+	for (Node* child : childs) {
+		child->detectCollision(eye, M_new);
+	}
 }
 

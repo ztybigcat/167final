@@ -201,3 +201,4 @@ void Geometry::draw(glm::mat4 M, GLuint program){
 }
 
 void Geometry::update(bool flag){}
+void Geometry::detectCollision(glm::vec3 eye, glm::mat4 C) {}

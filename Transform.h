@@ -33,6 +33,7 @@ public:
     void draw(glm::mat4 C, GLuint program);
     void update(bool flag);
     void rotation(glm::mat4 C);
+	void detectCollision(glm::vec3 eye, glm::mat4 C);
 };
 
 #endif /* Transform_h */
