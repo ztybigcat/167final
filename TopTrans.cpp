@@ -28,12 +28,6 @@ void TopTrans::draw(glm::mat4 C, GLuint program) {
 		//if (Window::unCalc) {
 			//Window::unCalc = false;
 		//}
-		if(!cResult){
-			for (Node* child : childs) {
-				child->draw(M_new, program);
-			}
-			Window::cullingCount++;
-		}
 	}else{
 		for (Node* child : childs) {
 			child->draw(M_new, program);

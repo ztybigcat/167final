@@ -420,8 +420,8 @@ void Window::displayCallback(GLFWwindow* window)
 
 	skybox->updateProjection(projection);
 	skybox->updateView(view);
-	skybox->draw();
-	glfwSetWindowTitle(window, "Silkman-- Score: "+score);
+	skybox->draw();   
+	//glfwSetWindowTitle(window, "Silkman-- Score: "+ score.toString());
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -541,19 +541,6 @@ void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
-	//if (yoffset > 0) {
-	//	pitch += sensitivity;
-	//}
-	//else if (yoffset < 0) {
-	//	pitch -= sensitivity;
-	//}
-	//if (xoffset > 0) {
-	//	yaw += sensitivity;
-	//}
-	//else if (yoffset < 0) {
-	//	yaw -= sensitivity;
-	//}
-
 	yaw += xoffset;
 	pitch += yoffset;
 
@@ -594,7 +581,7 @@ void Window::cursorEnterCallback(GLFWwindow* window, int entered) {
 }
 void Window::moving() {
 	if (Window::keyF[0]) {
-		Window::eye += 0.5f * Window::center;
+		Window::eye += 0.05f * Window::center;
 	}
 	if (Window::keyF[1]) {
 		Window::eye -= 0.05f * Window::center;
@@ -610,3 +597,15 @@ void Window::moving() {
 	skybox->updateView(view);
 }
 
+void Window::decScore() {
+	score = score - 3;
+	if (score < 0) {
+		score = 0;
+	}
+}
+void Window::incScore() {
+	score++;
+}
+void Window::gameOver() {
+	over = true;
+}
