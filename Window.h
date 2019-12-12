@@ -29,7 +29,7 @@
 #include "shader.h"
 #include "Light.h"
 #include "Node.h"
-
+#include "Skybox.hpp"
 class Window
 {
 public:
@@ -43,24 +43,16 @@ public:
 	static bool debugMode;
     static bool normalFlag, cFlag, unCalc;
 	static const char* windowTitle;
-//	static Cube* cube;
-//    static PointCloud * cubePoints;
-//    static PointCloud * bunnyPoints;
-//    static PointCloud * dragonPoints;
-//    static PointCloud * bearPoints;
-//    static Light * lightObj;
-//	static Object * currentObj;
 	static glm::mat4 projection;
 	static glm::mat4 view;
 	static glm::vec3 eye, center, up, direction, right;
 	static glm::vec3 fc, ftl, ftr, fbl, fbr, nc, ntl, ntr, nbl, nbr, normF, normN, normU, normB, normR, normL;
-	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc, flagLoc;
-//    , viewPosLoc, lightPosLoc, lightColorLoc, materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc, flagLoc;
+	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc, lightPosLoc, lightColorLoc, materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc, flagLoc;
 	static Transform* root, * base1, * terrian, * park;
 	static Geometry* g_base1, * g_mid1, * g_mid2, * g_mid3, * g_top1, *g_terrian, * g_road, * g_park;
 	static std::vector<Transform*> blocks, roads;
 	//static Binding * binder;
-
+	static Skybox * skybox;
 	static bool initializeProgram();
 	static bool initializeObjects();
 	static void cleanUp();

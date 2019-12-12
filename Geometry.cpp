@@ -7,8 +7,8 @@
 //
 
 #include "Geometry.h"
-Geometry::Geometry(std::string objFilename, GLfloat pointSize, glm::vec3 co)
-    : pointSize(pointSize)
+Geometry::Geometry(std::string objFilename, GLfloat pointSize, Material mat)
+    : pointSize(pointSize), mat(mat)
 {
     std::ifstream objFile(objFilename); // The obj file we are reading.
     std::vector<glm::vec3> locPoints;
@@ -17,7 +17,6 @@ Geometry::Geometry(std::string objFilename, GLfloat pointSize, glm::vec3 co)
     std::vector<int> vIndices;
     std::vector<int> uvIndices;
     std::vector<int> nIndices;
-	color = co;
     // Check whether the file can be opened.
     if (objFile.is_open())
     {
@@ -192,7 +191,11 @@ void Geometry::setModelMatrixM(glm::mat4 M){
 
 void Geometry::draw(glm::mat4 M, GLuint program){
     glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniform3fv(glGetUniformLocation(program, "color"), 1, glm::value_ptr(color));
+    glUniform3fv(glGetUniformLocation(program, "color"), 1, glm::value_ptr(mat.color));
+	glUniform3fv(glGetUniformLocation(program, "material.ambient"), 1, glm::value_ptr(mat.ambient));
+	glUniform3fv(glGetUniformLocation(program, "material.diffuse"), 1, glm::value_ptr(mat.diffuse));
+	glUniform3fv(glGetUniformLocation(program, "material.specular"), 1, glm::value_ptr(mat.specular));
+	glUniform1f(glGetUniformLocation(program, "material.shininess"), mat.shininess);
     setModelMatrixM(M);
     rendering();
 }

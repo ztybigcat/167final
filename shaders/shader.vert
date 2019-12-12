@@ -18,7 +18,7 @@ uniform mat4 model;
 // The default output, gl_Position, should be assigned something. You can define as many
 // extra outputs as you need.
 out float sampleExtraOutput;
-//out vec3 fragPos;
+out vec3 fragPos;
 out vec3 normal;
 
 void main()
@@ -26,6 +26,6 @@ void main()
     // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
     gl_Position = projection * view * model * vec4(aposition, 1.0);
     sampleExtraOutput = 1.0f;
-//    fragPos = vec3(model * vec4(aposition,1.0));
+    fragPos = vec3(model * vec4(aposition,1.0));
     normal = mat3(transpose(inverse(model))) * anormal;
 }

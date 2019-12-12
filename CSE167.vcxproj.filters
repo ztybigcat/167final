@@ -45,6 +45,15 @@
     <ClCompile Include="TopTrans.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="strtools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pathtools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Binding.h">
@@ -80,8 +89,35 @@
     <ClInclude Include="TopTrans.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="compat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pathtools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="strtools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\shader.frag">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+    <None Include="shaders\shader.vert">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+    <None Include="shaders\skybox.frag">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+    <None Include="shaders\skybox.vert">
+      <Filter>Source Files\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

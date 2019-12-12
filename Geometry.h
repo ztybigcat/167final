@@ -25,7 +25,13 @@
 #include <sstream>
 
 #include "Node.h"
-
+struct Material {
+	glm::vec3 color;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float shininess;
+};
 class Geometry : public Node
 {
 private:
@@ -36,13 +42,13 @@ private:
     GLuint vao, vbo;
     GLfloat pointSize;
     glm::mat4 model;
-    glm::vec3 color;
+	Material mat;
 public:
-    Geometry(std::string objFilename, GLfloat pointSize, glm::vec3 co);
+    Geometry(std::string objFilename, GLfloat pointSize, Material mat);
     ~Geometry();
 	bool sFlag = false;
     glm::mat4 getModel() { return model; }
-    glm::vec3 getColor() { return color; }
+    glm::vec3 getColor() { return mat.color; }
     void draw(glm::mat4 M, GLuint program);
     void update(bool flag);
     void setModelMatrixM(glm::mat4 M);
