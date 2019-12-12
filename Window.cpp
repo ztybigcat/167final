@@ -1,5 +1,5 @@
 #include "Window.h"
-
+#include "pathtools.h"
 int Window::width;
 int Window::height;
 bool Window::normalFlag = false;
@@ -17,12 +17,9 @@ int Window::cullingCount = 0;
 
 const char* Window::windowTitle = "GLFW Starter Project";
 
+Skybox* Window::skybox;
+
 // Objects to display.
-//Cube * Window::cube;
-//PointCloud * Window::cubePoints;
-//PointCloud * Window::bunnyPoints;
-//PointCloud * Window::dragonPoints;
-//PointCloud * Window::bearPoints;
 //
 //Light * Window::lightObj;
 int blockStatus[100] = {}; //0 for building, 1 for park
@@ -70,15 +67,6 @@ glm::vec3 Window::normU;
 glm::vec3 Window::normB;
 glm::vec3 Window::normL;
 glm::vec3 Window::normR;
-//glm::vec3 bunnyMaterialAmbient = glm::vec3(0.1f,0.05f,0.2f);
-//glm::vec3 bunnyMaterialDiffuse = glm::vec3(0.0f,0.0f,0.0f);
-//glm::vec3 bunnyMaterialSpecular = glm::vec3(0.8f,0.9f,0.7f);
-//glm::vec3 dragonMaterialAmbient = glm::vec3(0.6f,0.2f,0.1f);
-//glm::vec3 dragonMaterialDiffuse = glm::vec3(0.7f,0.9f,0.6f);
-//glm::vec3 dragonMaterialSpecular = glm::vec3(0.0f,0.0f,0.0f);
-//glm::vec3 bearMaterialAmbient = glm::vec3(0.135f,0.2225f,0.1575f);
-//glm::vec3 bearMaterialDiffuse = glm::vec3(0.54f,0.89f,0.63f);
-//glm::vec3 bearMaterialSpecular = glm::vec3(0.316f,0.316f,0.316f);
 
 // The object currently displaying.
 //Object * Window::currentObj;
@@ -91,6 +79,7 @@ glm::vec3 Window::center(0.0f, 18.0f, 148.0f); // The point we are looking at.
 //glm::vec3 Window::center(28.0f, 2.0f, 148.0f); // The point we are looking at.
 glm::vec3 Window::up(0.0f, 1.0f, 0.0f); // The up direction of the camera.
 //glm::vec3 Window::up(1.0f, 0.0f, 0.0f); // The up direction of the camera.
+
 glm::vec3 Window::direction = glm::normalize(Window::center - Window::eye);
 glm::vec3 Window::right = glm::cross(Window::up, - Window::direction);
 
@@ -108,13 +97,13 @@ GLuint Window::projectionLoc; // Location of projection in shader.
 GLuint Window::viewLoc; // Location of view in shader.
 GLuint Window::modelLoc; // Location of model in shader.
 GLuint Window::colorLoc; // Location of color in shader.
-//GLuint Window::viewPosLoc; //Location of viewLoc in shader.
-//GLuint Window::lightPosLoc; //Location of light position in shader.
-//GLuint Window::lightColorLoc; //Location of light ambient in shader.
-//GLuint Window::materialAmbientLoc; //Location of material ambient in shader.
-//GLuint Window::materialDiffuseLoc; //Location of material diffuse in shader.
-//GLuint Window::materialSpecularLoc; //Location of material specular in shader.
-//GLuint Window::materialShininessLoc; //Location of material shininess in shader.
+GLuint Window::viewPosLoc; //Location of viewLoc in shader.
+GLuint Window::lightPosLoc; //Location of light position in shader.
+GLuint Window::lightColorLoc; //Location of light ambient in shader.
+GLuint Window::materialAmbientLoc; //Location of material ambient in shader.
+GLuint Window::materialDiffuseLoc; //Location of material diffuse in shader.
+GLuint Window::materialSpecularLoc; //Location of material specular in shader.
+GLuint Window::materialShininessLoc; //Location of material shininess in shader.
 GLuint Window::flagLoc;
 
 bool Window::initializeProgram() {
@@ -135,14 +124,14 @@ bool Window::initializeProgram() {
 	viewLoc = glGetUniformLocation(program, "view");
 	modelLoc = glGetUniformLocation(program, "model");
 	colorLoc = glGetUniformLocation(program, "color");
-//    viewPosLoc = glGetUniformLocation(program, "veiwPos");
-//    lightPosLoc = glGetUniformLocation(program, "light.pos");
-//    lightColorLoc = glGetUniformLocation(program, "light.color");
+    viewPosLoc = glGetUniformLocation(program, "veiwPos");
+    lightPosLoc = glGetUniformLocation(program, "light.pos");
+    lightColorLoc = glGetUniformLocation(program, "light.color");
 
-//    materialAmbientLoc = glGetUniformLocation(program, "material.ambient");
-//    materialDiffuseLoc = glGetUniformLocation(program, "material.diffuse");
-//    materialSpecularLoc = glGetUniformLocation(program, "material.specular");
-//    materialShininessLoc = glGetUniformLocation(program, "material.shininess");
+    materialAmbientLoc = glGetUniformLocation(program, "material.ambient");
+    materialDiffuseLoc = glGetUniformLocation(program, "material.diffuse");
+    materialSpecularLoc = glGetUniformLocation(program, "material.specular");
+    materialShininessLoc = glGetUniformLocation(program, "material.shininess");
     flagLoc = glGetUniformLocation(program, "flag");
 
 	Window::projection = glm::perspective(glm::radians(Window::fov),
@@ -174,17 +163,24 @@ bool Window::initializeObjects()
     materialDiffuse = bunnyMaterialDiffuse;
     materialSpecular = bunnyMaterialSpecular;*/
 	srand(time(0));
-    g_base1 = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\base1.obj",1, glm::vec3(0.8, 0.8, 0.8));
-    g_mid1 = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\mid1.obj",1, glm::vec3(0.3,0.3,0.3));
-	g_mid2 = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\mid2.obj", 1, glm::vec3(0.3, 0.3, 0.3));
-	g_mid3 = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\mid3.obj", 1, glm::vec3(0.3, 0.3, 0.3));
-	g_top1 = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\top1.obj", 1, glm::vec3(0.2, 0.2, 0.2));
-	g_terrian = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\terrian.obj", 1, glm::vec3(1.0,1.0,1.0));
-	g_road = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\road.obj", 1, glm::vec3(0.0,0.0,0.0));
-	g_park = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\park.obj", 1, glm::vec3(0.2, 0.4, 0.6));
+
+	std::string path = Path_StripFilename(Path_GetExecutablePath());
+	Material mat{ glm::vec3(0.80,0.36,0.0) ,glm::vec3(0.3,0.3,0.3) ,glm::vec3(0.5,0.5,0.5) ,glm::vec3(0.1,0.1,0.1) ,0.25};
+	g_base1 = new Geometry(path + "\\objs\\base1.obj", 1, mat);
+    g_mid1 = new Geometry(path+"\\objs\\mid1.obj",1, mat);
+	g_mid2 = new Geometry(path + "\\objs\\mid2.obj", 1, mat);
+	g_mid3 = new Geometry(path + "\\objs\\mid3.obj", 1, mat);
+	g_top1 = new Geometry(path + "\\objs\\top1.obj", 1, mat);
+	mat = { glm::vec3(0.25,0.5,0.25) ,glm::vec3(0.4,0.4,0.4) ,glm::vec3(0.2,0.2,0.2) ,glm::vec3(0.5,0.5,0.5) ,0.7 };
+	g_terrian = new Geometry(path + "\\objs\\terrian.obj", 1, mat);
+	mat = { glm::vec3(0.3,0.3,0.3) ,glm::vec3(0.4,0.4,0.4) ,glm::vec3(0.2,0.2,0.2) ,glm::vec3(0.5,0.5,0.5) ,0.7 };
+	g_road = new Geometry(path + "\\objs\\road.obj", 1, mat);
+	mat = { glm::vec3(0.0,0.4,0.75) ,glm::vec3(0.4,0.4,0.4) ,glm::vec3(0.5,0.5,0.5) ,glm::vec3(0.7,0.7,0.7) ,0.7 };
+	g_park = new Geometry(path + "\\objs\\park.obj", 1, mat);
 	g_gold = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\token.obj", 1, glm::vec3(0.6, 0.6, 0.4));
 	g_bomb = new Geometry("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\bomb.obj", 1, glm::vec3(0.1, 0.1, 0.1));
 	//binder = new Binding("C:\\Users\\ztybigcat\\Desktop\\Final_Proj\\cube.obj", 1);
+
 
     glm::mat4 identity = glm::mat4(1.0f);
     root = new Transform(identity);
@@ -283,6 +279,13 @@ bool Window::initializeObjects()
 			}
 		}
 	}
+
+
+	//skybox = new Skybox();
+	//skybox->init();
+	//skybox->updateProjection(projection);
+	//skybox->updateView(view);
+
 	for (int i = 0; i < 360; i++) {
 		if (tokenStatus[i] == 1) {
 			allTokens->addChild(tokens[i]);
@@ -293,6 +296,7 @@ bool Window::initializeObjects()
 			tokens[i]->addChild(g_gold);
 		}
 	}
+
 	return true;
 }
 
@@ -392,8 +396,17 @@ void Window::displayCallback(GLFWwindow* window)
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(Window::view));
 	Window::cullingCount = 0;
     // Render the object.
-    root->draw(glm::mat4(1.0f),program);
-	printf("Number %d", Window::cullingCount);
+	glUseProgram(program);
+
+	//printf("Number %d", Window::cullingCount);
+
+	glUniform3fv(lightColorLoc, 1, value_ptr(glm::vec3(1.,1.,1.)));
+	glUniform3fv(lightPosLoc, 1, value_ptr(glm::vec3(0.0, -100.0, 100.0)));
+	root->draw(glm::mat4(1.0f), program);
+	//skybox->updateProjection(projection);
+	//skybox->updateView(view);
+	//skybox->draw();
+
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
 	// Swap buffers.
@@ -535,6 +548,7 @@ void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	//Window::fov = std::max(Window::fov + dif, double(20.0));
 	Window::projection = glm::perspective(glm::radians(Window::fov),
 		double(Window::width) / double(Window::height), 1.0, 1000.0);
+	//skybox->updateProjection(projection);
 	if (!debugMode) {
 		Window::frustumCalc();
 	}
