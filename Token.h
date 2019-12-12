@@ -1,6 +1,6 @@
 
-#ifndef Cell_h
-#define Cell_h
+#ifndef Token_h
+#define Token_h
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
@@ -20,15 +20,15 @@
 
 #include "Node.h"
 
-class Cell : public Node
+class Token : public Node
 {
 private:
 	glm::mat4 M;
 	glm::mat4 init;
 	std::list<Node*> childs;
 public:
-	Cell(glm::mat4 transM);
-	~Cell();
+	Token(glm::mat4 transM);
+	~Token();
 
 	void addChild(Node* child);
 	void draw(glm::mat4 C, GLuint program);
@@ -37,4 +37,4 @@ public:
 	void detectCollision(glm::vec3 eye, glm::mat4 C);
 };
 
-#endif /* Cell_h */
+#endif /* Token_h */

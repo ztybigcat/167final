@@ -31,6 +31,7 @@
 #include "Node.h"
 #include "Cell.h"
 #include "Skybox.hpp"
+#include "Token.h"
 class Window
 {
 public:
@@ -54,7 +55,8 @@ public:
 	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc, viewPosLoc, lightPosLoc, lightColorLoc, materialAmbientLoc, materialDiffuseLoc, materialSpecularLoc, materialShininessLoc, flagLoc;
 	static Transform* root, * base1, * terrian, * park, * win, *allTokens;
 	static Geometry* g_base1, * g_mid1, * g_mid2, * g_mid3, * g_top1, *g_terrian, * g_road, * g_park, * g_gold, * g_bomb, * g_win;
-	static std::vector<Transform*> blocks, roads, tokens;
+	static std::vector<Transform*> blocks, roads;
+	static std::vector<Token*> tokens;
 
 	static int score;
 	static bool over;

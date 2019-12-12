@@ -24,23 +24,9 @@ void Cell::addChild(Node* child) {
 }
 void Cell::draw(glm::mat4 C, GLuint program) {
 	glm::mat4 M_new = C * M;
-	if (Window::cFlag) {
-		//if (Window::unCalc) {
-			//Window::unCalc = false;
-		//}
-		if (!cResult) {
-			for (Node* child : childs) {
-				child->draw(M_new, program);
-			}
-			Window::cullingCount++;
-		}
-	}
-	else {
 		for (Node* child : childs) {
 			child->draw(M_new, program);
 		}
-		Window::cullingCount++;
-	}
 }
 
 void Cell::update(bool flag) {

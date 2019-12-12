@@ -36,7 +36,7 @@ int tokenStatus[360] = {}; //0 for gold, 1 for bomb
 
 std::vector<Transform*> Window::blocks = std::vector<Transform*>(100);
 std::vector<Transform*> Window::roads = std::vector<Transform*>(18); //0-8 vertical left to right, 9-17 herizontal bottom to top
-std::vector<Transform*> Window::tokens = std::vector<Transform*>(360);//20 per road
+std::vector<Token*> Window::tokens = std::vector<Token*>(360);//20 per road
 Transform * Window::root;
 Transform * Window::base1;
 Transform * Window::terrian;
@@ -219,12 +219,12 @@ bool Window::initializeObjects()
 		shuffle(arr, 74);
 		if(i<9){
 			for (int j = 0; j < 20; j++) {
-				tokens[j + 20 * i] = new Transform(glm::translate(glm::vec3(-92 + i*30, 22 + rand() % 30 - 15, 2 + 4 * arr[j]))* glm::rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+				tokens[j + 20 * i] = new Token(glm::translate(glm::vec3(-92 + i*30, 22 + rand() % 30 - 15, 2 + 4 * arr[j]))* glm::rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 			}
 		}
 		else {
 			for (int j = 0; j < 20; j++) {
-				tokens[j + 20 * i] = new Transform(glm::translate(glm::vec3(-118 + 4 * arr[j], 22 +rand() % 30-15, 28 + 30 * (i - 9))));
+				tokens[j + 20 * i] = new Token(glm::translate(glm::vec3(-118 + 4 * arr[j], 22 +rand() % 30-15, 28 + 30 * (i - 9))));
 			}
 		}
 	}
@@ -399,6 +399,7 @@ void Window::idleCallback()
 	
 	Window::moving();
 	Window::blocks[int(Window::eye.z/30) * 10 + int((Window::eye.x+120)/30)]->detectCollision(Window::eye, glm::mat4(1.0f));
+	Window::allTokens->detectCollision(Window::eye, glm::mat4(1.0f));
 }
 void Window::displayCallback(GLFWwindow* window)
 {
@@ -606,6 +607,8 @@ void Window::decScore() {
 void Window::incScore() {
 	score++;
 }
+
 void Window::gameOver() {
 	over = true;
 }
+

@@ -3,7 +3,7 @@
 //  CSE167 P2
 //
 //  Created by Yichen Zhang on 10/28/19.
-//  Copyright © 2019 Yichen Zhang. All rights reserved.
+//  Copyright Â© 2019 Yichen Zhang. All rights reserved.
 //
 
 #include "TopTrans.h"
@@ -24,15 +24,9 @@ void TopTrans::addChild(Node* child) {
 }
 void TopTrans::draw(glm::mat4 C, GLuint program) {
 	glm::mat4 M_new = C * M;
-	if (Window::cFlag){
-		//if (Window::unCalc) {
-			//Window::unCalc = false;
-		//}
-	}else{
-		for (Node* child : childs) {
-			child->draw(M_new, program);
-		}
-		Window::cullingCount++;
+	for (Node* child : childs) {
+		child->draw(M_new, program);
+
 	}
 }
 
